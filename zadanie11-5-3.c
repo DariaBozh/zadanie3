@@ -49,7 +49,8 @@ char ctwl_delete(CTWL* list);
 CTWL *ctwl_create_random(unsigned int size){
     CTWL *list = ctwl_create_empty();
     for(unsigned int i = 0; i < size; ++i){
-    	float val = (float)(rand() % 100);
+    	//float val = (float)(rand() % 100);
+    	float val = ((float) rand() / RAND_MAX) * 100.0f;
     	ctwl_insert_right(list, val);
 	}
 	return list;
@@ -59,7 +60,20 @@ CTWL *ctwl_create_random(unsigned int size){
 void ctwl_destroy(CTWL* list);
 
 // vypis
-void ctwl_print(CTWL *list);
+void ctwl_print(CTWL *list){
+	if(list->cur == NULL){
+		printf("Zoznam je prazny\n");
+        return;
+	}
+	
+	TWN *start = list->cur;
+	TWN *node = start;
+	do{
+		printf("%.2f ", node->data);
+		node = node->next;	
+	} while (node != start);
+	printf("\n");
+}
 
 // зміна курсора
 void ctwl_cur_step_right(CTWL *list);
@@ -69,5 +83,20 @@ void ctwl_cur_step_left(CTWL *list);
 void ctwl_concatenate(CTWL *a, CTWL *b);
 
 int main(){
+	srand(time(NULL));
 	
+	CTWL *a = ctwl_create_random(4);
+	CTWL *b = ctwl_create_random(3);
+	
+	printf("Zoznam a pred preretazenim:\n");
+	ctwl_print(a);
+	
+	printf("Zoznam b pred preretazenim:\n");
+	ctwl_print(b);
+	
+	return 0;
 }
+
+
+
+
