@@ -52,14 +52,14 @@ TWN *ctwl_insert_left(CTWL* list, float val); //nie je potrebne realizovat, ale 
 
 char ctwl_delete(CTWL* list){
 	if (list->cur == NULL)
-		return CTWL_OK;
+		return CTWL_FAIL;
 	
 	TWN *to_delete = list->cur;
 	
 	if (to_delete->next == to_delete){
 		free(to_delete);
 		list->cur = NULL;
-		return CTWL_FAIL;
+		return CTWL_OK;
 	}
 	
 	TWN *prev = to_delete->prev;
@@ -78,6 +78,7 @@ char ctwl_delete(CTWL* list){
 // рандом потрібної довжини
 CTWL *ctwl_create_random(unsigned int size){
     CTWL *list = ctwl_create_empty();
+    
     for(unsigned int i = 0; i < size; ++i){
     	//float val = (float)(rand() % 100);
     	float val = ((float) rand() / RAND_MAX) * 100.0f;
@@ -89,9 +90,10 @@ CTWL *ctwl_create_random(unsigned int size){
 
 // руйнує
 void ctwl_destroy(CTWL* list){
-	if(list == NULL || list->cur == NULL)
+	if(list == NULL || list->cur == NULL){
 	free(list);
-	return;
+	return;	
+	}
 	
 	TWN *start = list->cur;
 	TWN *node = start->next;
@@ -134,7 +136,37 @@ void ctwl_cur_step_left(CTWL *list); //nie je potrebne realizovat, ale nabuduce 
 
 
 // головна функція
-void ctwl_concatenate(CTWL *a, CTWL *b);
+void ctwl_concatenate(CTWL *a, CTWL *b){
+	// обмежень на вузли немає -> циклічність продовжується
+	if(!a || !b )//or
+	return;
+	
+	if(a->cur == NULL && b->cur == NULL){ //and
+		return;
+	} else if (a->cur == NULL){
+		a->cur = b->cur;
+		b->cur = NULL;
+		free(b);
+		return;
+	} else if (b->cur == NULL) {
+		free(b);
+		return;
+	}
+	
+	TWN *a_next = a->cur->next;
+	TWN *b_next = b->cur->next;
+	
+	a->cur->next = b_next;
+	b_next->prev = a->cur;
+	
+	b->cur->next = a_next;
+	a_next->prev = b->cur;
+	
+	
+	b->cur = NULL;
+	free(b);
+	//Курсором новоствореного списку стає початковий курсор списку A.
+}
 
 
 int main(){
@@ -145,9 +177,6 @@ int main(){
 	
 	printf("Zoznam a pred preretazenim:\n");
 	ctwl_print(a);
-	
-	printf("Zoznam b pred preretazenim:\n");
-	ctwl_print(b);
 	
 	return 0;
 }
