@@ -11,18 +11,21 @@ typedef struct TWN{
   float data;
   struct TWN *prev;
   struct TWN *next;
- }TWN;
+}TWN;
  
  
 // Це керівна структура — вона не зберігає елементи напряму, а лише вказує на cur
 typedef struct{
- TWN *cur;
- }CTWL;
+  TWN *cur;
+}CTWL;
  
  
 // створює новий
 CTWL *ctwl_create_empty(void){ 
 	CTWL *list = (CTWL*)malloc(sizeof(CTWL));
+	if (!list) 
+	return NULL;
+	
 	list->cur = NULL;
 	return list;
 }
@@ -31,6 +34,9 @@ CTWL *ctwl_create_empty(void){
 // інсерт та деліт
 TWN *ctwl_insert_right(CTWL* list, float val){
 	TWN *new_node = (TWN*)malloc(sizeof(TWN));
+	if (!new_node) 
+	return NULL;
+	
 	new_node->data = val;
 	
 	if (list->cur == NULL){
@@ -90,10 +96,15 @@ CTWL *ctwl_create_random(unsigned int size){
 
 // руйнує
 void ctwl_destroy(CTWL* list){
-	if(list == NULL || list->cur == NULL){
-	free(list);
-	return;	
+    // тут два різних аби не було подвійного звільнення
+	if (list == NULL)
+    return;
+
+	if (list->cur == NULL) {
+	    free(list);
+	    return;
 	}
+
 	
 	TWN *start = list->cur;
 	TWN *node = start->next;
@@ -111,17 +122,23 @@ void ctwl_destroy(CTWL* list){
 
 // виписує
 void ctwl_print(CTWL *list){
-	if(list->cur == NULL){
-		printf("Zoznam je prazny\n");
+	
+	if (!list || !list->cur) {
+        printf("[empty]\n");
         return;
-	}
+    }
 	
 	TWN *start = list->cur;
 	TWN *node = start;
-	do{
-		printf("%.2f ", node->data);
-		node = node->next;	
-	} while (node != start);
+	
+	do {
+        if (node == list->cur)
+            printf("[%.2f]* ", node->data);  // Зірочка позначає курсор 
+        else
+            printf("%.2f ", node->data);
+        node = node->next;
+    } while (node != start);
+    
 	printf("\n\n");
 }
 
@@ -138,6 +155,7 @@ void ctwl_cur_step_left(CTWL *list); //nie je potrebne realizovat, ale nabuduce 
 // головна функція
 void ctwl_concatenate(CTWL *a, CTWL *b){
 	// обмежень на вузли немає -> циклічність продовжується
+	
 	if(!a || !b )//or
 	return;
 	
@@ -176,6 +194,14 @@ int main(){
 	CTWL *b = ctwl_create_random(3);
 	
 	printf("Zoznam a pred preretazenim:\n");
+	ctwl_print(a);
+	
+	printf("Zoznam b pred preretazenim:\n");
+	ctwl_print(b);
+	
+	ctwl_concatenate(a, b);
+
+    printf("Zoznam a po preretazeni:\n");
 	ctwl_print(a);
 	
 	return 0;
